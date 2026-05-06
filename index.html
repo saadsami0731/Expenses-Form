@@ -478,19 +478,23 @@
       size: A4;
       margin: 12mm;
     }
-    body {
+    html, body {
       background: white;
       padding: 0;
+      margin: 0;
+      min-height: 0 !important;
+      height: auto;
     }
     .toolbar { display: none !important; }
     .paper {
       box-shadow: none;
       max-width: 100%;
-      padding: 24px 30px;
+      padding: 22px 28px;
       border-radius: 0;
       border: 1px solid #000;
-      min-height: calc(297mm - 24mm - 2px); /* A4 height minus @page margins minus border */
       box-sizing: border-box;
+      page-break-after: avoid;
+      page-break-inside: avoid;
     }
     .paper::before { display: none; }
     .add-row, .delete-btn, .row-num { display: none !important; }
@@ -680,13 +684,174 @@
     }
   }
 
-  /* responsive */
-  @media (max-width: 640px) {
-    .paper { padding: 32px 20px; }
-    .header { flex-direction: column; gap: 16px; align-items: stretch; }
-    .header-meta { text-align: right; direction: rtl; }
+  /* ===== Responsive: tablet ===== */
+  @media (max-width: 720px) {
+    body { padding: 16px 10px 40px; }
+    .toolbar {
+      margin: 0 auto 12px;
+      gap: 8px;
+    }
+    .toolbar h1 { font-size: 18px; }
+    .btn {
+      padding: 9px 14px;
+      font-size: 13px;
+    }
+    .paper {
+      padding: 28px 20px 32px;
+    }
+    .paper::before { inset: 8px; }
+    .header { gap: 14px; }
     .header-title h2 { font-size: 28px; }
-    .expense-table thead th:last-child { width: auto; }
+    .header-title .subtitle { letter-spacing: 2px; font-size: 11px; }
+    .meta-value { font-size: 16px; }
+  }
+
+  /* ===== Responsive: phone ===== */
+  @media (max-width: 480px) {
+    body {
+      padding: 10px 6px 32px;
+      font-size: 14px;
+    }
+    .toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .toolbar h1 {
+      font-size: 16px;
+      text-align: center;
+    }
+    .actions {
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn {
+      padding: 10px 14px;
+      font-size: 13px;
+      flex: 1;
+      justify-content: center;
+    }
+    .paper {
+      padding: 18px 12px 22px;
+    }
+    .paper::before { inset: 5px; }
+
+    /* Header */
+    .header {
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+    .header-title { text-align: center; }
+    .header-title h2 { font-size: 24px; line-height: 1.1; }
+    .header-title .subtitle { font-size: 10px; letter-spacing: 2px; margin-top: 4px; }
+    .header-meta { text-align: center; direction: rtl; }
+    .meta-label { font-size: 10px; letter-spacing: 1.5px; }
+    .meta-value { font-size: 15px; }
+
+    /* Table — change from fixed-grid to compact layout */
+    .expense-table {
+      font-size: 13px;
+    }
+    .expense-table thead th {
+      padding: 8px 6px;
+      font-size: 12px;
+      letter-spacing: 0;
+    }
+    .expense-table thead th.amount-col {
+      width: 130px;
+    }
+    .expense-table thead th.action-col {
+      width: 36px;
+    }
+    .row-num {
+      width: 22px;
+      font-size: 10px;
+      padding: 10px 2px;
+    }
+    .cell-input {
+      padding: 10px 8px;
+      font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
+    }
+    .amount-input {
+      font-size: 16px;
+      padding: 10px 4px !important;
+    }
+    .amount-wrap .amount-input {
+      padding-left: 2px;
+      padding-right: 2px;
+    }
+    .currency-toggle {
+      min-width: 42px;
+      padding: 0 6px;
+      font-size: 12px;
+    }
+    .currency-toggle.is-usd {
+      font-size: 14px;
+    }
+    .delete-btn {
+      width: 26px;
+      height: 26px;
+      font-size: 16px;
+    }
+
+    .add-row {
+      padding: 10px;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    /* Totals */
+    .total-section {
+      margin-top: 18px;
+      padding-top: 14px;
+    }
+    .total-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      padding: 10px 12px;
+    }
+    .total-label {
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .total-label-prefix { font-size: 11px; letter-spacing: 0; }
+    .total-label-words { font-size: 13px; }
+    .total-label-suffix { font-size: 11px; }
+    .total-value {
+      font-size: 22px;
+    }
+
+    /* Footer / name */
+    .footer {
+      margin-top: 28px;
+    }
+    .name-block {
+      flex-direction: row;
+      gap: 8px;
+    }
+    .name-label {
+      font-size: 15px;
+    }
+    .name-box {
+      font-size: 15px;
+      padding: 10px 12px;
+      min-height: 42px;
+    }
+  }
+
+  /* Very narrow phones */
+  @media (max-width: 360px) {
+    .paper { padding: 14px 8px 20px; }
+    .header-title h2 { font-size: 22px; }
+    .expense-table thead th.amount-col { width: 118px; }
+    .currency-toggle { min-width: 38px; font-size: 11px; }
+    .cell-input { padding: 9px 6px; }
+    /* keep input font-size at 16px to prevent iOS zoom */
   }
 </style>
 </head>
