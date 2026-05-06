@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>قائمة مصاريف</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #fafaf7;
+    --paper-line: #ebe7dd;
+    --accent: #8b1e1e;
+    --accent-soft: #f4e8e8;
+    --muted: #6b6b6b;
+    --gold: #b8923a;
+    --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 12px 40px rgba(26,26,26,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #e8e6df;
+    font-family: 'Tajawal', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  body {
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(139,30,30,0.04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(184,146,58,0.06) 0%, transparent 40%);
+    padding: 32px 16px 60px;
+  }
+
+  /* ===== Top bar (hidden in print) ===== */
+  .toolbar {
+    max-width: 820px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .toolbar h1 {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+  }
+
+  .toolbar h1 span {
+    color: var(--accent);
+  }
+
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .btn {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .btn-primary:hover { background: var(--accent); transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+  .btn-ghost:hover { background: var(--ink); color: var(--paper); }
+
+  /* ===== Paper ===== */
+  .paper {
+    max-width: 820px;
+    margin: 0 auto;
+    background: var(--paper);
+    padding: 56px 60px 48px;
+    box-shadow: var(--shadow);
+    position: relative;
+    border-radius: 2px;
+  }
+
+  .paper::before {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    border: 1px solid var(--paper-line);
+    pointer-events: none;
+    border-radius: 1px;
+  }
+
+  /* ===== Header ===== */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+  }
+
+  .header-title h2 {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  .header-title .subtitle {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 4px;
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+
+  .header-meta {
+    text-align: left;
+    direction: ltr;
+  }
+
+  .meta-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .meta-value {
+    font-family: 'Inter', 'Tajawal', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  /* ===== Table ===== */
+  .table-wrap {
+    margin-bottom: 24px;
+  }
+
+  table.expense-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+
+  .expense-table thead th {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 14px;
+    text-align: right;
+    letter-spacing: 0.5px;
+  }
+
+  .expense-table thead th.amount-col {
+    text-align: center;
+    width: 180px;
+  }
+
+  .amount-cell {
+    padding: 0;
+  }
+
+  .amount-wrap {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .amount-wrap .amount-input {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .currency-toggle {
+    flex-shrink: 0;
+    border: none;
+    background: var(--paper-line);
+    color: var(--ink);
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 0 10px;
+    cursor: pointer;
+    min-width: 50px;
+    transition: background 0.15s, color 0.15s;
+    border-right: 1px solid #d4cfc1;
+  }
+
+  .currency-toggle:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .currency-toggle.is-usd {
+    background: #d6e8dc;
+    color: #2d4a3a;
+    font-size: 16px;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .currency-toggle.is-usd:hover {
+    background: #c1ddca;
+  }
+
+  .expense-table thead th.action-col {
+    width: 56px;
+    background: var(--ink);
+  }
+
+  .expense-table tbody tr {
+    border-bottom: 1px solid var(--paper-line);
+    transition: background 0.15s;
+  }
+  .expense-table tbody tr:hover {
+    background: rgba(139,30,30,0.02);
+  }
+
+  .expense-table tbody td {
+    padding: 0;
+    vertical-align: middle;
+  }
+
+  .cell-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 14px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+  }
+
+  .cell-input:focus {
+    background: var(--accent-soft);
+  }
+
+  .amount-input {
+    text-align: center;
+    font-family: 'Inter', 'Tajawal', sans-serif;
+    font-weight: 400;
+    font-size: 17px;
+  }
+
+  /* hide arrows on number inputs */
+  .amount-input::-webkit-outer-spin-button,
+  .amount-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .amount-input { -moz-appearance: textfield; }
+
+  .row-num {
+    width: 36px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 14px 4px;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .delete-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 18px;
+    line-height: 1;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+  .delete-btn:hover {
+    background: var(--accent);
+    color: white;
+  }
+
+  .add-row {
+    margin-top: 14px;
+    background: transparent;
+    border: 1.5px dashed var(--paper-line);
+    color: var(--muted);
+    padding: 12px;
+    width: 100%;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  .add-row:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  /* ===== Total ===== */
+  .total-section {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 2px solid var(--ink);
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 12px 16px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  .total-row-usd {
+    background: #2d4a3a;
+  }
+
+  /* dim the USD row on screen when no USD entries */
+  .total-row-usd.zero-amount {
+    opacity: 0.45;
+  }
+
+  .total-label {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0;
+    flex: 1;
+    line-height: 1.5;
+  }
+
+  .total-label-screen {
+    display: inline;
+  }
+
+  .total-label-prefix {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--gold);
+    margin-left: 6px;
+  }
+
+  .total-row-usd .total-label-prefix {
+    color: #d6e8dc;
+  }
+
+  .total-label-words {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .total-label-suffix {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gold);
+    opacity: 0.85;
+    margin-right: 4px;
+  }
+
+  .total-row-usd .total-label-suffix {
+    color: #d6e8dc;
+  }
+
+  .total-value {
+    font-family: 'Inter', 'Tajawal', sans-serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--gold);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .total-row-usd .total-value {
+    color: #d6e8dc;
+  }
+
+  .total-label-print { display: none; }
+
+  /* ===== Footer (signature) ===== */
+  .footer {
+    margin-top: 56px;
+  }
+
+  .name-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 480px;
+  }
+
+  .name-label {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .name-box {
+    flex: 1;
+    border: 2px solid var(--ink);
+    background: white;
+    padding: 12px 16px;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    text-align: right;
+    color: var(--ink);
+    outline: none;
+    border-radius: 4px;
+    transition: all 0.15s;
+    cursor: text;
+    min-height: 48px;
+  }
+
+  .name-box:hover {
+    border-color: var(--accent);
+  }
+
+  .name-box:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .name-box::placeholder {
+    color: var(--muted);
+    font-weight: 400;
+    font-style: italic;
+    opacity: 0.6;
+  }
+
+  /* ===== Print ===== */
+  @media print {
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+    body {
+      background: white;
+      padding: 0;
+    }
+    .toolbar { display: none !important; }
+    .paper {
+      box-shadow: none;
+      max-width: 100%;
+      padding: 24px 30px;
+      border-radius: 0;
+      border: 1px solid #000;
+      min-height: calc(297mm - 24mm - 2px); /* A4 height minus @page margins minus border */
+      box-sizing: border-box;
+    }
+    .paper::before { display: none; }
+    .add-row, .delete-btn, .row-num { display: none !important; }
+    .expense-table thead th.action-col,
+    .expense-table tbody td.action-cell,
+    .expense-table thead th.num-col,
+    .expense-table tbody td.num-cell {
+      display: none !important;
+    }
+    .expense-table tbody tr.empty-row {
+      display: none;
+    }
+
+    /* Hide USD total row & words when no USD expenses */
+    .total-row-usd.zero-amount,
+    .words-row-usd.zero-amount {
+      display: none !important;
+    }
+
+    /* Currency toggle becomes plain text in print */
+    .currency-toggle {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 6px !important;
+      font-family: 'Tajawal', sans-serif !important;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      color: var(--ink) !important;
+      cursor: default !important;
+    }
+    .amount-wrap {
+      align-items: baseline;
+    }
+    .amount-wrap .amount-input {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+      padding: 8px 4px !important;
+    }
+
+    /* === Header: date on top-right, title centered === */
+    .header {
+      display: block;
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 18px;
+    }
+    .header-meta {
+      text-align: right;
+      direction: rtl;
+      margin-bottom: 12px;
+    }
+    .meta-label { display: none !important; }
+    .meta-value {
+      font-family: 'Tajawal', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .meta-value::before {
+      content: "التاريخ : ";
+      font-weight: 700;
+    }
+    .header-title {
+      text-align: center;
+    }
+    .header-title h2 {
+      font-size: 30px;
+      display: inline-block;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 6px;
+    }
+    .header-title .subtitle { display: none !important; }
+
+    /* === Table: bordered, amount on right (narrow), details on left (wide) === */
+    .expense-table {
+      table-layout: fixed;
+      border: 1px solid #000;
+      border-bottom: none;
+    }
+    .expense-table thead th {
+      background: #ececec !important;
+      color: var(--ink) !important;
+      border: 1px solid #000;
+      text-align: center;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .expense-table tbody td {
+      border: 1px solid #000;
+    }
+    .expense-table tbody tr {
+      border: none;
+    }
+    .cell-input {
+      border: none !important;
+      padding: 8px 10px;
+    }
+    .cell-input:focus {
+      background: transparent !important;
+    }
+    /* Amount column compact (right in RTL), details fills the rest */
+    .expense-table thead th.amount-col,
+    .expense-table tbody td.amount-cell {
+      width: 22%;
+    }
+    .expense-table thead th:nth-child(3),  /* details header */
+    .expense-table tbody td:nth-child(3) { /* details cell */
+      width: 78%;
+    }
+
+    /* === Total row (2 cells matching: amount-col | details-col) === */
+    .total-section {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+    .total-row {
+      display: table;
+      table-layout: fixed;
+      width: 100%;
+      background: #ececec !important;
+      color: var(--ink) !important;
+      border: 1px solid #000;
+      border-radius: 0;
+      margin-bottom: 0;
+      padding: 0;
+      direction: rtl;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    /* IQD row sits directly under the table — its top border doubles with the table cells' bottom borders, which is fine and reads as a single line */
+    .total-row-iqd {
+      border-top: 1px solid #000;
+    }
+    /* When USD row is visible, give it a top border to separate from IQD */
+    .total-row-usd:not(.zero-amount) {
+      border-top: 1px solid #000;
+    }
+    .total-row > * {
+      display: table-cell;
+      vertical-align: middle;
+      padding: 10px 12px;
+    }
+    /* In print, place number cell first (right) under amount col, label cell second (left) */
+    .total-value {
+      width: 22%;
+      text-align: center;
+      font-family: 'Inter', 'Tajawal', sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--ink) !important;
+      border-left: 1px solid #000;
+    }
+    .total-row-usd .total-value {
+      color: var(--ink) !important;
+    }
+    .total-value::after {
+      content: " " attr(data-currency-symbol);
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .total-label {
+      width: 78%;
+      text-align: right;
+      font-family: 'Tajawal', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+    .total-label-screen { display: none !important; }
+    .total-label-print { display: inline !important; }
+
+    /* hide the separate words row in print — words go inline with total */
+    .words-row { display: none !important; }
+
+    /* === Name & signature: no border in print === */
+    .name-box {
+      border: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      padding-right: 0 !important;
+    }
+    .footer {
+      margin-top: 36px;
+    }
+  }
+
+  /* responsive */
+  @media (max-width: 640px) {
+    .paper { padding: 32px 20px; }
+    .header { flex-direction: column; gap: 16px; align-items: stretch; }
+    .header-meta { text-align: right; direction: rtl; }
+    .header-title h2 { font-size: 28px; }
+    .expense-table thead th:last-child { width: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>قائمة <span>مصاريف</span></h1>
+  <div class="actions">
+    <button class="btn btn-ghost" onclick="resetForm()">↺ مسح الكل</button>
+    <button class="btn btn-primary" onclick="window.print()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+        <rect x="6" y="14" width="12" height="8"></rect>
+      </svg>
+      طباعة
+    </button>
+  </div>
+</div>
+
+<div class="paper">
+  <header class="header">
+    <div class="header-title">
+      <h2>قائمة مصاريف</h2>
+      <div class="subtitle">EXPENSE REPORT</div>
+    </div>
+    <div class="header-meta">
+      <div class="meta-label">التاريخ · DATE</div>
+      <div class="meta-value" id="dateDisplay"></div>
+    </div>
+  </header>
+
+  <div class="table-wrap">
+    <table class="expense-table">
+      <thead>
+        <tr>
+          <th class="num-col" style="width:36px"></th>
+          <th class="amount-col">المبلغ</th>
+          <th>التفاصيل</th>
+          <th class="action-col"></th>
+        </tr>
+      </thead>
+      <tbody id="rowsBody"></tbody>
+    </table>
+    <button class="add-row" onclick="addRow()">+ إضافة صف</button>
+  </div>
+
+  <div class="total-section">
+    <div class="total-row total-row-iqd">
+      <span class="total-value" id="totalDisplayIQD" data-currency-symbol="دينار">0</span>
+      <span class="total-label">
+        <span class="total-label-screen">
+          <span class="total-label-prefix">المجموع بالدينار:</span>
+          <span class="total-label-words" id="wordsDisplayIQD">صفر دينار</span>
+          <span class="total-label-suffix">لا غير</span>
+        </span>
+        <span class="total-label-print" id="wordsDisplayPrintIQD">المجموع صفر دينار لا غير</span>
+      </span>
+    </div>
+    <div class="total-row total-row-usd" id="totalRowUSD">
+      <span class="total-value" id="totalDisplayUSD" data-currency-symbol="$">0</span>
+      <span class="total-label">
+        <span class="total-label-screen">
+          <span class="total-label-prefix">المجموع بالدولار:</span>
+          <span class="total-label-words" id="wordsDisplayUSD">صفر دولار</span>
+          <span class="total-label-suffix">لا غير</span>
+        </span>
+        <span class="total-label-print" id="wordsDisplayPrintUSD">المجموع صفر دولار لا غير</span>
+      </span>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="name-block">
+      <span class="name-label">الاسم والتوقيع :</span>
+      <input type="text" class="name-box" id="nameInput" placeholder="اكتب اسمك">
+    </div>
+  </footer>
+</div>
+
+<script>
+  // ===== Date =====
+  function formatDate(d) {
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    return `${dd} / ${mm} / ${yyyy}`;
+  }
+  document.getElementById('dateDisplay').textContent = formatDate(new Date());
+
+  // ===== Rows =====
+  let rowCounter = 0;
+  const rowsBody = document.getElementById('rowsBody');
+
+  function addRow(focus = true) {
+    rowCounter++;
+    const tr = document.createElement('tr');
+    tr.dataset.id = rowCounter;
+    tr.innerHTML = `
+      <td class="num-cell row-num"></td>
+      <td class="amount-cell">
+        <div class="amount-wrap">
+          <input type="text" inputmode="decimal" class="cell-input amount-input" placeholder="0">
+          <button type="button" class="currency-toggle" data-currency="IQD" title="تبديل العملة">دينار</button>
+        </div>
+      </td>
+      <td><input type="text" class="cell-input details-input" placeholder="وصف المصروف..."></td>
+      <td class="action-cell"><button type="button" class="delete-btn" title="حذف">×</button></td>
+    `;
+    rowsBody.appendChild(tr);
+
+    // wire up
+    const detailsInput = tr.querySelector('.details-input');
+    const amountInput = tr.querySelector('.amount-input');
+    const currencyToggle = tr.querySelector('.currency-toggle');
+    const deleteBtn = tr.querySelector('.delete-btn');
+
+    // Helper: parse the displayed (possibly comma-formatted) value to a Number
+    function parseAmount(str) {
+      if (!str) return NaN;
+      // Remove commas, keep digits and decimal
+      const cleaned = str.replace(/,/g, '').replace(/[^\d.]/g, '');
+      const parts = cleaned.split('.');
+      const normalized = parts.length > 2
+        ? parts[0] + '.' + parts.slice(1).join('')
+        : cleaned;
+      const n = parseFloat(normalized);
+      return isNaN(n) ? NaN : n;
+    }
+
+    // Format with thousand separators while preserving in-progress decimal input
+    function formatAmount(str) {
+      // Extract clean digits + (optional) decimal
+      const cleaned = str.replace(/,/g, '').replace(/[^\d.]/g, '');
+      const parts = cleaned.split('.');
+      const intPart = parts[0] || '';
+      const decPart = parts.length > 1 ? parts.slice(1).join('').slice(0, 2) : null; // max 2 dp
+      const intFormatted = intPart === ''
+        ? ''
+        : Number(intPart).toLocaleString('en-US');
+      if (decPart === null) {
+        // user is not in decimal mode
+        return intFormatted;
+      }
+      // decimal mode (string ends with "." or has digits after)
+      return intFormatted + '.' + decPart;
+    }
+
+    amountInput.addEventListener('input', (e) => {
+      const cursorAtEnd = e.target.selectionStart === e.target.value.length;
+      const formatted = formatAmount(e.target.value);
+      e.target.value = formatted;
+      if (cursorAtEnd) {
+        // place cursor at end after reformat
+        e.target.setSelectionRange(formatted.length, formatted.length);
+      }
+      updateTotal();
+      updateEmptyMarkers();
+    });
+
+    // store parser so updateTotal can use it
+    tr._parseAmount = parseAmount;
+
+    currencyToggle.addEventListener('click', () => {
+      const current = currencyToggle.dataset.currency;
+      if (current === 'IQD') {
+        currencyToggle.dataset.currency = 'USD';
+        currencyToggle.textContent = '$';
+        currencyToggle.classList.add('is-usd');
+      } else {
+        currencyToggle.dataset.currency = 'IQD';
+        currencyToggle.textContent = 'دينار';
+        currencyToggle.classList.remove('is-usd');
+      }
+      updateTotal();
+    });
+
+    detailsInput.addEventListener('input', updateEmptyMarkers);
+
+    deleteBtn.addEventListener('click', () => {
+      tr.remove();
+      renumberRows();
+      updateTotal();
+    });
+
+    renumberRows();
+    updateEmptyMarkers();
+    if (focus) detailsInput.focus();
+  }
+
+  function renumberRows() {
+    [...rowsBody.querySelectorAll('tr')].forEach((tr, i) => {
+      tr.querySelector('.num-cell').textContent = i + 1;
+    });
+  }
+
+  function updateEmptyMarkers() {
+    [...rowsBody.querySelectorAll('tr')].forEach(tr => {
+      const d = tr.querySelector('.details-input').value.trim();
+      const a = tr.querySelector('.amount-input').value.trim();
+      if (!d && !a) tr.classList.add('empty-row');
+      else tr.classList.remove('empty-row');
+    });
+  }
+
+  // ===== Total =====
+  function updateTotal() {
+    let totalIQD = 0;
+    let totalUSD = 0;
+    rowsBody.querySelectorAll('tr').forEach(tr => {
+      const amountInput = tr.querySelector('.amount-input');
+      const currencyToggle = tr.querySelector('.currency-toggle');
+      if (!amountInput || !currencyToggle) return;
+      const v = tr._parseAmount ? tr._parseAmount(amountInput.value) : parseFloat(amountInput.value);
+      if (isNaN(v)) return;
+      if (currencyToggle.dataset.currency === 'USD') totalUSD += v;
+      else totalIQD += v;
+    });
+
+    function fmt(n) {
+      return n.toLocaleString('en-US', {
+        minimumFractionDigits: n % 1 === 0 ? 0 : 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    document.getElementById('totalDisplayIQD').textContent = fmt(totalIQD);
+    document.getElementById('totalDisplayUSD').textContent = fmt(totalUSD);
+
+    const wordsIQD = numberToArabicWords(totalIQD, 'IQD');
+    const wordsUSD = numberToArabicWords(totalUSD, 'USD');
+    document.getElementById('wordsDisplayIQD').textContent = wordsIQD;
+    document.getElementById('wordsDisplayUSD').textContent = wordsUSD;
+    document.getElementById('wordsDisplayPrintIQD').textContent = 'المجموع ' + wordsIQD + ' لا غير';
+    document.getElementById('wordsDisplayPrintUSD').textContent = 'المجموع ' + wordsUSD + ' لا غير';
+
+    // Mark USD section so print can hide when zero
+    const hasUSD = totalUSD > 0;
+    document.getElementById('totalRowUSD').classList.toggle('zero-amount', !hasUSD);
+  }
+
+  // ===== Number → Arabic words (Iraqi Dinar / فلس) =====
+  // Supports 0 through 999,999,999.99
+  const ONES = ['','واحد','اثنان','ثلاثة','أربعة','خمسة','ستة','سبعة','ثمانية','تسعة',
+                'عشرة','أحد عشر','اثنا عشر','ثلاثة عشر','أربعة عشر','خمسة عشر',
+                'ستة عشر','سبعة عشر','ثمانية عشر','تسعة عشر'];
+  const TENS = ['','','عشرون','ثلاثون','أربعون','خمسون','ستون','سبعون','ثمانون','تسعون'];
+  const HUNDREDS = ['','مئة','مئتان','ثلاثمئة','أربعمئة','خمسمئة','ستمئة','سبعمئة','ثمانمئة','تسعمئة'];
+
+  function below1000(n) {
+    if (n === 0) return '';
+    let parts = [];
+    const h = Math.floor(n/100);
+    const rem = n % 100;
+    if (h > 0) parts.push(HUNDREDS[h]);
+    if (rem > 0) {
+      if (rem < 20) parts.push(ONES[rem]);
+      else {
+        const o = rem % 10;
+        const t = Math.floor(rem/10);
+        if (o === 0) parts.push(TENS[t]);
+        else parts.push(ONES[o] + ' و' + TENS[t]);
+      }
+    }
+    return parts.join(' و');
+  }
+
+  function thousandsWord(n) {
+    // n is the count of thousands (1..999)
+    if (n === 1) return 'ألف';
+    if (n === 2) return 'ألفان';
+    if (n >= 3 && n <= 10) return below1000(n) + ' آلاف';
+    return below1000(n) + ' ألف';
+  }
+
+  function millionsWord(n) {
+    if (n === 1) return 'مليون';
+    if (n === 2) return 'مليونان';
+    if (n >= 3 && n <= 10) return below1000(n) + ' ملايين';
+    return below1000(n) + ' مليون';
+  }
+
+  function intToWords(n) {
+    if (n === 0) return 'صفر';
+    let result = [];
+    const millions = Math.floor(n / 1000000);
+    const thousands = Math.floor((n % 1000000) / 1000);
+    const rest = n % 1000;
+    if (millions > 0) result.push(millionsWord(millions));
+    if (thousands > 0) result.push(thousandsWord(thousands));
+    if (rest > 0) result.push(below1000(rest));
+    return result.join(' و');
+  }
+
+  function numberToArabicWords(num, currency) {
+    currency = currency || 'IQD';
+    const isUSD = currency === 'USD';
+    const mainSingular = isUSD ? 'دولار واحد' : 'دينار واحد';
+    const mainDual = isUSD ? 'دولاران' : 'ديناران';
+    const mainPlural = isUSD ? 'دولارات' : 'دنانير';
+    const mainGeneric = isUSD ? 'دولار' : 'دينار';
+    const subSingular = isUSD ? 'سنت واحد' : 'فلس واحد';
+    const subDual = isUSD ? 'سنتان' : 'فلسان';
+    const subPlural = isUSD ? 'سنتات' : 'فلوس';
+    const subGeneric = isUSD ? 'سنت' : 'فلس';
+
+    if (!num || num === 0) return 'صفر ' + mainGeneric;
+    const isNegative = num < 0;
+    num = Math.abs(num);
+    const major = Math.floor(num);
+    const minor = Math.round((num - major) * 100);
+
+    let parts = [];
+    if (major > 0) {
+      let unit;
+      if (major === 1) unit = mainSingular;
+      else if (major === 2) unit = mainDual;
+      else if (major >= 3 && major <= 10) unit = intToWords(major) + ' ' + mainPlural;
+      else unit = intToWords(major) + ' ' + mainGeneric;
+      parts.push(unit);
+    }
+    if (minor > 0) {
+      let unit;
+      if (minor === 1) unit = subSingular;
+      else if (minor === 2) unit = subDual;
+      else if (minor >= 3 && minor <= 10) unit = intToWords(minor) + ' ' + subPlural;
+      else unit = intToWords(minor) + ' ' + subGeneric;
+      parts.push(unit);
+    }
+    let out = parts.join(' و');
+    if (isNegative) out = 'سالب ' + out;
+    return out;
+  }
+
+  // ===== Reset =====
+  function resetForm() {
+    if (!confirm('هل أنت متأكد من مسح جميع البيانات؟')) return;
+    rowsBody.innerHTML = '';
+    document.getElementById('nameInput').value = '';
+    for (let i = 0; i < 5; i++) addRow(false);
+    updateTotal();
+  }
+
+  // ===== Init =====
+  for (let i = 0; i < 5; i++) addRow(false);
+  updateTotal();
+
+  // Update date every minute in case form is left open
+  setInterval(() => {
+    document.getElementById('dateDisplay').textContent = formatDate(new Date());
+  }, 60000);
+</script>
+</body>
+</html>
