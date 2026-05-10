@@ -264,6 +264,30 @@
     outline: none;
   }
 
+  /* Make the details textarea behave like an inline cell */
+  textarea.details-input {
+    resize: none;
+    overflow: hidden;
+    line-height: 1.5;
+    min-height: 50px;
+    display: block;
+    vertical-align: middle;
+    box-sizing: border-box;
+  }
+
+  /* Print-only mirror element for textarea content (set up in JS) */
+  .details-print-mirror {
+    display: none;
+    padding: 6pt 7pt;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 11pt;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
   .cell-input:focus {
     background: var(--accent-soft);
   }
@@ -612,6 +636,16 @@
       padding: 6pt 7pt !important;
       font-size: 11pt !important;
       font-weight: 400 !important;
+    }
+    /* In print, the textarea is replaced by .details-print-mirror via JS.
+       This rule is a fallback for browsers that don't fire beforeprint. */
+    textarea.details-input {
+      overflow: visible !important;
+      white-space: pre-wrap !important;
+      word-wrap: break-word !important;
+      resize: none !important;
+      min-height: 0 !important;
+      height: auto !important;
     }
     .cell-input:focus {
       background: transparent !important;
@@ -995,7 +1029,7 @@
           <button type="button" class="currency-toggle" data-currency="IQD" title="تبديل العملة">دينار</button>
         </div>
       </td>
-      <td><input type="text" class="cell-input details-input" placeholder="وصف المصروف..."></td>
+      <td><textarea rows="1" class="cell-input details-input" placeholder="وصف المصروف..."></textarea></td>
       <td class="action-cell"><button type="button" class="delete-btn" title="حذف">×</button></td>
     `;
     rowsBody.appendChild(tr);
@@ -1066,7 +1100,17 @@
       updateTotal();
     });
 
-    detailsInput.addEventListener('input', updateEmptyMarkers);
+    // Auto-resize the details textarea to fit content
+    function autoSizeDetails() {
+      detailsInput.style.height = 'auto';
+      detailsInput.style.height = detailsInput.scrollHeight + 'px';
+    }
+    detailsInput.addEventListener('input', () => {
+      autoSizeDetails();
+      updateEmptyMarkers();
+    });
+    // size once on creation in case it has initial content
+    setTimeout(autoSizeDetails, 0);
 
     deleteBtn.addEventListener('click', () => {
       tr.remove();
@@ -1235,6 +1279,33 @@
   // ===== Init =====
   for (let i = 0; i < 5; i++) addRow(false);
   updateTotal();
+
+  // For perfect print height, swap textareas to spans before print and back after
+  function prepareDetailsForPrint() {
+    document.querySelectorAll('textarea.details-input').forEach(t => {
+      // Save current value/state on the textarea, hide it, and create a print-only span
+      t.dataset.printValue = t.value;
+      t.style.display = 'none';
+      let printSpan = t.parentNode.querySelector('.details-print-mirror');
+      if (!printSpan) {
+        printSpan = document.createElement('div');
+        printSpan.className = 'details-print-mirror';
+        t.parentNode.appendChild(printSpan);
+      }
+      printSpan.textContent = t.value;
+      printSpan.style.display = 'block';
+    });
+  }
+  function restoreDetailsAfterPrint() {
+    document.querySelectorAll('textarea.details-input').forEach(t => {
+      t.style.display = '';
+    });
+    document.querySelectorAll('.details-print-mirror').forEach(s => {
+      s.style.display = 'none';
+    });
+  }
+  window.addEventListener('beforeprint', prepareDetailsForPrint);
+  window.addEventListener('afterprint', restoreDetailsAfterPrint);
 
   // Update date every minute in case form is left open
   setInterval(() => {
