@@ -640,6 +640,7 @@
       align-items: baseline !important;
       flex-direction: row !important;
       gap: 0 !important;
+      flex-wrap: wrap !important;
     }
     .amount-wrap .amount-input {
       flex: 1 !important;
@@ -648,6 +649,8 @@
       padding: 6pt 3pt !important;
       font-size: 11pt !important;
       font-weight: 400 !important;
+      white-space: normal !important;
+      word-break: break-all !important;
     }
 
     /* === Header: date on top-right, title centered === */
@@ -779,14 +782,14 @@
     .cell-input:focus {
       background: transparent !important;
     }
-    /* Amount column compact (right in RTL), details fills the rest */
+    /* Amount column — wide enough for 7-digit numbers + currency word */
     .expense-table thead th.amount-col,
     .expense-table tbody td.amount-cell {
-      width: 22% !important;
+      width: 30% !important;
     }
     .expense-table thead th:nth-child(3),  /* details header */
     .expense-table tbody td:nth-child(3) { /* details cell */
-      width: 78% !important;
+      width: 70% !important;
     }
 
     /* === Total row (2 cells matching: amount-col | details-col) === */
@@ -826,13 +829,16 @@
     }
     /* In print, place number cell first (right) under amount col, label cell second (left) */
     .total-value {
-      width: 22% !important;
+      width: 30% !important;
       text-align: center !important;
       font-family: 'Inter', 'Tajawal', sans-serif !important;
-      font-size: 12pt !important;
+      font-size: 11pt !important;
       font-weight: 400 !important;
       color: var(--ink) !important;
       border-left: 1px solid #000 !important;
+      white-space: normal !important;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
     }
     .total-row-usd .total-value {
       color: var(--ink) !important;
@@ -844,14 +850,17 @@
       font-family: 'Tajawal', sans-serif;
     }
     .total-label {
-      width: 78% !important;
+      width: 70% !important;
       text-align: right !important;
       font-family: 'Tajawal', sans-serif !important;
-      font-size: 10.5pt !important;
+      font-size: 10pt !important;
       font-weight: 700 !important;
       color: var(--ink) !important;
       letter-spacing: 0 !important;
-      line-height: 1.4 !important;
+      line-height: 1.45 !important;
+      white-space: normal !important;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
     }
     .total-label-screen { display: none !important; }
     .total-label-print { display: inline !important; font-size: 10.5pt !important; }
